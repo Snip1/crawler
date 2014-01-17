@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>...</title>
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <div class="pagination pagination-centered"></div>
+
+    <div class="container">
+      <div class="row">
+        <div class="span7" id="search-result"><!-- тут выводится результат поиска --></div>
+
+          <form class="span4 well search-filter" name="search">
+
+            <div>пол
+              <div> <input type="checkbox" name="sex[]" value="мужчина">  мужчина</div>
+              <div> <input type="checkbox" name="sex[]" value="женщина">  женщина</div>
+              <div> <input type="checkbox" name="sex[]" value="пара">  пара</div>
+            </div>
+            <div>год рождения
+              <div> от <input type="text" name="birth-min"> до <input type="text" name="birth-max">
+              </div>
+            </div>
+            <div>город
+               <input type="text" name="city">
+            </div>
+            <div>ориентация
+              <div> <input type="checkbox" name="orient[]" value="би"> би</div>
+              <div> <input type="checkbox" name="orient[]" value="гетеро">  гетеро</div>
+            </div>
+            <div>с альбомами
+              <div> <input type="checkbox" name="albums"> с фотографиями</div>
+            </div>
+            <div>
+              <input type="text" name="text">
+            </div>
+          </form>
+      </div>
+
+    </div>
+
+    <div class="pagination pagination-centered"></div>
+
+  <script id="search-total" type="text/x-jsrender">
+    <div class="row muted">
+      Результатов: {{:count}}
+    </div><br<br><br>
+  </script>
+ 
+  <script id="search-item" type="text/x-jsrender">
+    <div class="row">
+      <div class="span1">
+        <img src="{{:fields.img}}" width="100px">
+      </div>
+      <div class="span11">
+        <div><a href="view.html?id={{:id}}" target="_blank">{{:fields.default[0]}} на сайте {{:fields.site}}</a></div>
+        <div>{{:fields.sex}}, {{:fields.birth}}, {{:fields.orient}}, {{:fields.city}}</div>
+        <div class="more">{{:fields.default[1]}}</div>
+        альбомов: {{:fields.albums}}
+      </div>
+    </div>
+    <div style="clear: both"><br><br></div>
+  </script>
+
+  <script src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+  <script src="http://cdn.jsdelivr.net/jsrender/1.0pre35/jsrender.min.js"></script>
+  <script>
+(function() {
+
+  var serverURl = 'http://localhost:3000';
+
+  var limit = 30;
+
+  var tplItem = $.templates('#search-item');
+  var tplResult = $.templates('#search-total');
+  var form = $(document.search);
+  var page = $(".pagination");
+
+  var typewatch = (function(){
+    var timer = 0;
+    return function(callback, ms){
+      clearTimeout (timer);
+      timer = setTimeout(callback, ms);
+    }
+  })();
+
+  var query = function(pageNum) {
+      var skip = pageNum ? (pageNum - 1) * limit : 0;
+      $.getJSON(serverURl+'/search/?'+form.serialize()+'&skip='+skip+'&limit='+limit, null, function(data) {
+        $('#search-result').empty().append(
+          tplResult.render({ count: data.total_rows })
+        ).append(
+          tplItem.render(data.rows)
+        );
+
+        var pageTotal = Math.ceil(data.total_rows / data.limit);
+        var currentPage = (data.skip / data.limit) + 1;
+
+        var ul = $('<UL>');
+
+        if(pageTotal) {
+          var start = (currentPage < 7) ? 1 : currentPage - 6;
+          for(var i = start, l = start + 10; i < l && i <= pageTotal; i++) {
+            var cls = (i == currentPage)? 'active page-item' : 'page-item';
+            ul.append('<li class="'+cls+'" data-page="'+i+'"><a href="">'+i+'</a></li>');
+          }
+        }
+
+        page.empty().append(ul);
+
+      $('.page-item').off().on('click', function(e) {
+        e.preventDefault();
+        query($(this).data('page'));
+      });
+
+      });
+  }
+
+  form.find('input:not([type=text])').on('change', function() {
+    query();
+  });
+  form.find('input[type=text]').on('keyup', function() {
+    typewatch(function () {
+      query();
+    }, 500);
+  });
+
+  query();
+})();
+  </script>
+  </body>
+</html>

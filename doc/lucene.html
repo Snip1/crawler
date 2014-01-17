@@ -1,0 +1,86 @@
+<script>
+/*
+http://localhost:5984/_fti/local/swinginfo/_design/lucene/search
+http://localhost:5984/_fti/local/swinginfo/_design/lucene/search?q=mag
+
+
+curl "http://localhost:5984/_fti/local/swinginfo/_design/lucene/search?q=birth<int>:[10 TO 2000]"
+
+tail -f /usr/local/opt/couchdb-lucene/logs/couchdb-lucene.log
+?q=текст&sex=мужчина женщина пара&birth&city&orient&search&friends&albums
+
+{
+  "_id": "_design/lucene",
+  "language": "javascript",
+  "fulltext": {
+    "search": {
+      "analyzer": "russian",
+      "index": "function (doc) { var res = new Document(); if(!doc.nick) return null; res.add(doc.sex, {field: 'sex', store: 'yes'}); res.add(doc.birth, {field: 'birth', type: 'int', store: 'yes'}); res.add(doc.city, {field: 'city', store: 'yes'}); res.add(doc.orient, {field: 'orient', store: 'yes'}); res.add(doc.search, {field: 'search', store: 'yes'}); res.add(doc.nick, {store: 'yes'}); res.add(doc.about, {store: 'yes'}); res.add(doc.city); res.add(doc.orient); res.add(doc.search); res.add(doc.sex); for(var i in doc.more) { if(i) { res.add(i + ': ' + doc.more[i]); } else { res.add(more); } } var friendCount = 0; if(doc.friends) { friendCount = doc.friends.length; var friends = []; for(var i in doc.friends) { friends.push(doc.friends[i].nick); } res.add(friends.join(', ')); } res.add(friendCount, {field: 'friends', type: 'int'}); var albumCount = 0; if(doc.albums) { albumCount = doc.albums.length; var albums = []; for(var i in doc.albums) { albums.push(doc.albums[i].name); } res.add(albums.join(', ')); } res.add(albumCount, {field: 'albums', type: 'int', store: 'yes'}); res.add(doc.site, {'field': 'site', store: 'yes'}); res.add(doc.img, {'field': 'img', store: 'yes'}); return res; }"
+    }
+  }
+}
+
+
+?q=&sort=nick;sex;city&limit=10skip=0
+
+//city:Архангельск mag
+*/
+
+var test = function(doc) {
+
+  var res = new Document();
+
+  if(!doc.nick) return null;
+
+  res.add(doc.sex, {field: 'sex', store: 'yes'});
+  res.add(doc.birth, {field: 'birth', type: 'int', store: 'yes'});
+  res.add(doc.city, {field: 'city', store: 'yes'});
+  res.add(doc.orient, {field: 'orient', store: 'yes'});
+  res.add(doc.search, {field: 'search', store: 'yes'});
+
+  res.add(doc.nick, {store: 'yes'});
+  res.add(doc.about, {store: 'yes'});
+  res.add(doc.city);
+  res.add(doc.orient);
+  res.add(doc.search);
+  res.add(doc.sex);
+
+  for(var i in doc.more) {
+    if(i) {
+      res.add(i + ': ' + doc.more[i]);
+    } else {
+      res.add(more);
+    }
+  }
+
+  var friendCount = 0;
+  if(doc.friends) {
+    friendCount = doc.friends.length;
+    var friends = [];
+    for(var i in doc.friends) {
+      friends.push(doc.friends[i].nick);
+    }
+    res.add(friends.join(', '));
+  }
+  res.add(friendCount, {field: 'friends', type: 'int'});
+
+  var albumCount = 0;
+  if(doc.albums) {
+    albumCount = doc.albums.length;
+    var albums = [];
+    for(var i in doc.albums) {
+      albums.push(doc.albums[i].name);
+    }
+    res.add(albums.join(', '));
+  }
+  res.add(albumCount, {field: 'albums', type: 'int', store: 'yes'});
+
+  res.add(doc.site, {'field': 'site', store: 'yes'});
+  res.add(doc.img, {'field': 'img', store: 'yes'});
+
+  return res;
+
+}
+
+document.write(test);
+</script>

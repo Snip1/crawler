@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <title>...</title>
+    <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+  </head>
+
+  <body>
+
+    <div class="container" id="container"></div>
+
+
+  <script id="tpl-profile" type="text/x-jsrender">
+    
+    <h1>{{:nick}}</h1>
+    
+    <a href="{{:url}}">{{:url}}</a><br>
+    
+    <img src="{{:img}}"><br>
+    
+    {{:sex}}, {{:birth}}, {{:city}}, {{:orient}}, {{:search}}<br>
+    
+    <i>{{:about}}</i><br><br>
+    
+    {{for more}}
+      - {{:#data}}<br>
+    {{/for}}
+
+    <h3>Фотоальбомы</h3>
+    {{for albums}}
+      <a href="{{:href}}">
+        <img src="{{:image}}" title="{{:name}}">
+      </a>
+    {{/for}}
+
+    <h3>Друзья</h3>
+    {{for friends}}
+      <a href="{{:href}}">
+        {{:nick}}
+      </a>
+    {{/for}}
+    <hr>
+    Обновлено: {{:updated}}
+  </script>
+
+  <script src="http://code.jquery.com/jquery-1.10.0.min.js"></script>
+  <script src="http://cdn.jsdelivr.net/jsrender/1.0pre35/jsrender.min.js"></script>
+  <script>
+(function() {
+  var serverURl = 'http://localhost:3000';
+  var parse = window.location.search.match(/id=([^&]+)/);
+  var id = parse?parse[1]:null;
+  
+  $.getJSON(serverURl+'/view/'+id, null, function(data) {
+    if(data.more) {
+      var more = [];
+      for(var i in data.more) {
+        more.push(i + ' ' + data.more[i]);
+      }
+      data.more = more;
+    }
+
+    $('#container').empty().append(
+      $.templates('#tpl-profile').render(data)
+    );
+
+  });
+  
+})();
+  </script>
+  </body>
+</html>

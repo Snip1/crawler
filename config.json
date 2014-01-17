@@ -1,0 +1,20 @@
+{
+	"sites": {
+		"f4.gs": {
+			"login": "***",
+			"password": "***",
+			"url": "https://f4.gs"
+		},
+		"swinglife.ru": {
+			"login": "***",
+			"password": "***",
+			"url": "http://www.swinglife.ru"
+		},
+		"ruswingers.com": {
+			"login": "***",
+			"password": "***",
+			"url": "http://ruswingers.com"
+		}
+	},
+	"database":  "http://localhost:5984/swinginfo"
+}

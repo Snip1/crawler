@@ -1,0 +1,13 @@
+profile_by_url:
+
+function(doc) {
+  emit(doc.url, doc);
+}
+
+
+unfetched:
+
+function(doc) {
+  if(doc.nick) return;
+  emit(doc.site, doc);
+}
